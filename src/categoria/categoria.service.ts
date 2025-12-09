@@ -1,26 +1,52 @@
-import { Injectable } from '@nestjs/common';
-import { CreateCategoriaDto } from './dto/create-categoria.dto';
-import { UpdateCategoriaDto } from './dto/update-categoria.dto';
-
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, ILike } from 'typeorm';
+import { Categoria } from './entities/categoria.entity';
 @Injectable()
 export class CategoriaService {
-  create(createCategoriaDto: CreateCategoriaDto) {
-    return 'This action adds a new categoria';
+  constructor(
+    @InjectRepository(Categoria)
+    private categoriaRepository: Repository<Categoria>,
+  ) {}
+
+  findAll(): Promise<Categoria[]> {
+    return this.categoriaRepository.find({
+      relations: { produtos: true },
+    });
   }
 
-  findAll() {
-    return `This action returns all categoria`;
+  async findById(id: number): Promise<Categoria> {
+    const categoria = await this.categoriaRepository.findOne({
+      where: { id },
+      relations: { produtos: true },
+    });
+
+    if (!categoria) {
+      throw new HttpException(
+        'Categoria não encontrada!',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return categoria;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} categoria`;
+  findByNome(nome: string): Promise<Categoria[]> {
+    return this.categoriaRepository.find({
+      where: { nome: ILike(`%${nome}%`) },
+      relations: { produtos: true },
+    });
   }
 
-  update(id: number, updateCategoriaDto: UpdateCategoriaDto) {
-    return `This action updates a #${id} categoria`;
+  create(categoria: Categoria): Promise<Categoria> {
+    return this.categoriaRepository.save(categoria);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} categoria`;
+  update(categoria: Categoria): Promise<Categoria> {
+    return this.categoriaRepository.save(categoria);
+  }
+
+  async delete(id: number): Promise<void> {
+    await this.categoriaRepository.delete(id);
   }
 }
