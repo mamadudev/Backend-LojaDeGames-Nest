@@ -12,7 +12,6 @@ export class Categoria {
   @Column({ length: 255 })
   descricao: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   @OneToMany(() => Produto, (produto) => produto.categoria)
   produtos: Produto[];
 }
