@@ -15,7 +15,6 @@ export class Produto {
   @Column({ type: 'text' })
   descricao: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   @ManyToOne(() => Categoria, (categoria) => categoria.produtos, {
     onDelete: 'CASCADE',
   })
